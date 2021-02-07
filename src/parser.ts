@@ -1,5 +1,4 @@
 const noteLetters = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'H'];
-
 const rootNotes = [
   'C',
   'D',

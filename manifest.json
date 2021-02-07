@@ -4,7 +4,7 @@
   "description": "Build an Extension!",
   "permissions": ["contextMenus"],
   "background": {
-    "scripts": ["build/background.js"],
+    "scripts": ["./background.js"],
     "persistent": false
   },
   "page_action": {
