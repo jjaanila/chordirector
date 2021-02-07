@@ -1,0 +1,21 @@
+{
+  "name": "chordirector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "scripts": {
+    "start": "tsc -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chrome",
+    "extension",
+    "chords"
+  ],
+  "author": "Janne Jaanila",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "0.0.129",
+    "typescript": "^4.1.3"
+  }
+}
