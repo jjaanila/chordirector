@@ -30,25 +30,22 @@ const rootNoteRegex = `[${noteLetters.join()}][b#]*`;
 
 type RootNote = typeof rootNotes[number];
 
-interface Chord {
+export interface TokenChord {
   rootNote: RootNote;
   rest: string | null;
 }
 
-interface Token {
+export interface Token {
+  id: number;
   value: string;
-  chord: Chord | null;
-}
-
-function renderChord(chord: Token) {
-  return '<strong>' + chord + '</strong>';
+  chord: TokenChord | null;
 }
 
 function isChord(chordCandidate: string) {
   return new RegExp(`^${rootNoteRegex}[/m#b123456789adiMmju+()]*$`).test(chordCandidate);
 }
 
-function parseChord(chordCandidate: string): Chord | null {
+function parseChord(chordCandidate: string): TokenChord | null {
   if (!isChord(chordCandidate)) {
     return null;
   }
@@ -64,7 +61,9 @@ function parseChord(chordCandidate: string): Chord | null {
 }
 
 export function tokenize(song: string): Token[] {
-  return song.split(/\s+/).map((tokenStr) => ({
+  console.log('tokenizing' + song);
+  return song.split(/\s+/).map((tokenStr, index) => ({
+    id: index,
     value: tokenStr,
     chord: parseChord(tokenStr),
   }));

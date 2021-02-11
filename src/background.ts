@@ -26,7 +26,7 @@ function sendNewSongRequest(tabId: number, song: string) {
 
 chrome.contextMenus.onClicked.addListener(function (info) {
   if (info.menuItemId == 'chordirector-open') {
-    chrome.tabs.create({ url: chrome.extension.getURL('main.html') }, (tab) => {
+    chrome.tabs.create({ url: chrome.extension.getURL('index.html') }, (tab) => {
       setTimeout(() => {
         if (tab.id === undefined) {
           throw new Error('Did not get tab.id');
