@@ -1,5 +1,5 @@
-const noteLetters = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'H'];
-const rootNotes = [
+const noteLetters = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const notes = [
   'C',
   'D',
   'E',
@@ -7,7 +7,6 @@ const rootNotes = [
   'G',
   'A',
   'B',
-  'H',
   'C#',
   'D#',
   'E#',
@@ -15,7 +14,6 @@ const rootNotes = [
   'G#',
   'A#',
   'B#',
-  'H#',
   'Cb',
   'Db',
   'Fb',
@@ -23,15 +21,15 @@ const rootNotes = [
   'Eb',
   'Ab',
   'Bb',
-  'Hb',
 ] as const;
 
-const rootNoteRegex = `[${noteLetters.join()}][b#]*`;
+const noteRegex = `[${noteLetters.join()}][b#]*`;
 
-type RootNote = typeof rootNotes[number];
+type Note = typeof notes[number];
 
 export interface TokenChord {
-  rootNote: RootNote;
+  rootNote: Note;
+  otherBassNote: Note | null;
   rest: string | null;
 }
 
@@ -42,20 +40,27 @@ export interface Token {
 }
 
 function isChord(chordCandidate: string) {
-  return new RegExp(`^${rootNoteRegex}[/m#b123456789adiMmju+()]*$`).test(chordCandidate);
+  return new RegExp(`^${noteRegex}[m#b123456789adiMmju+()]*(\/${noteRegex})?$`, 'gm').test(chordCandidate);
 }
 
 function parseChord(chordCandidate: string): TokenChord | null {
   if (!isChord(chordCandidate)) {
     return null;
   }
-  const rootNoteMatches = chordCandidate.match(rootNoteRegex);
+  const rootNoteMatches = chordCandidate.match(noteRegex);
   if (rootNoteMatches === null) {
     throw new Error(`Did not find rootnote for ${chordCandidate}`);
   }
-  const rest = chordCandidate.slice(rootNoteMatches[0].length);
+  let rest = chordCandidate.slice(rootNoteMatches[0].length);
+  const bassNoteMatches = rest.match(new RegExp(`/${noteRegex}`));
+  let otherBassNote: Note | null = null;
+  if (bassNoteMatches !== null && bassNoteMatches[0] !== null) {
+    otherBassNote = bassNoteMatches[0].slice(0, 1) as Note; // Leave out the leading slash
+    rest = rest.slice(bassNoteMatches[0].length);
+  }
   return {
-    rootNote: rootNoteMatches[0] as RootNote,
+    rootNote: rootNoteMatches[0] as Note,
+    otherBassNote,
     rest: rest === '' ? null : rest,
   };
 }
@@ -67,7 +72,7 @@ export type Song = {
 
 export function tokenize(songStr: string): Song {
   return {
-    tokens: songStr.split(/\b/).map((tokenStr, index) => ({
+    tokens: songStr.split(/(?<=\w)(?=\W)|(?<=\W)(?=\w)/).map((tokenStr, index) => ({
       id: index,
       value: tokenStr,
       chord: parseChord(tokenStr),

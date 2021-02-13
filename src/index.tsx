@@ -7,7 +7,13 @@ const nonChordCss = {
 };
 
 const Chord = ({ chord }: { chord: TokenChord }) => {
-  return <strong>{`${chord.rootNote}${chord.rest ? chord.rest : ''}`}</strong>;
+  return (
+    <strong>
+      {chord.rootNote}
+      {chord.rest !== null ? chord.rest : ''}
+      {chord.otherBassNote !== null ? `/${chord.otherBassNote}` : ''}
+    </strong>
+  );
 };
 
 const NonChord = ({ value }: { value: Token['value'] }) => {
@@ -16,7 +22,7 @@ const NonChord = ({ value }: { value: Token['value'] }) => {
 
 const App: React.FC = () => {
   const [song, setSong] = useState<Song>({ tokens: [], transposeLevel: 0 });
-
+  console.log(song.tokens.filter((token) => token.chord));
   useEffect(() => {
     chrome.runtime.onMessage.addListener((request: NewSongRequest, _sender, sendResponse) => {
       if (request.type == 'newSong') {
