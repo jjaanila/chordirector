@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { render } from 'react-dom';
-import { Chord } from './components/Chord';
-import { Song, Token, tokenize, transpose } from './parser';
+import { Song, Token, TokenChord, tokenize, transpose } from './parser';
 
 const nonChordCss = {
   whiteSpace: 'pre',
 };
 
+const Chord = ({ chord }: { chord: TokenChord }) => {
+  return <strong>{`${chord.rootNote}${chord.rest ? chord.rest : ''}`}</strong>;
+};
+
 const NonChord = ({ value }: { value: Token['value'] }) => {
-  if (/^\s+$/.test(value)) {
-    return <span style={nonChordCss}>{value}</span>;
-  }
   return <span style={nonChordCss}>{value}</span>;
 };
 
@@ -44,7 +44,7 @@ const App: React.FC = () => {
         Transpose down
       </button>
       <button id="reset-transpose" onClick={() => setSong(transpose(song, 0))}>
-        Reset
+        Reset transpose
       </button>
     </main>
   );
