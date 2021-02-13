@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { render } from 'react-dom';
 import { Chord } from './components/Chord';
-import { Song, Token, tokenize } from './parser';
+import { Song, Token, tokenize, transpose } from './parser';
 
 const nonChordCss = {
   whiteSpace: 'pre',
@@ -15,7 +15,8 @@ const NonChord = ({ value }: { value: Token['value'] }) => {
 };
 
 const App: React.FC = () => {
-  const [song, setSong] = useState<Song>([]);
+  const [song, setSong] = useState<Song>({ tokens: [], transposeLevel: 0 });
+
   useEffect(() => {
     chrome.runtime.onMessage.addListener((request: NewSongRequest, _sender, sendResponse) => {
       if (request.type == 'newSong') {
@@ -25,11 +26,10 @@ const App: React.FC = () => {
       sendResponse({ ok: false, reason: `Unknown request type ${request.type}` });
     });
   });
-  console.log(song);
   return (
     <main>
       <p>
-        {song.map((token) => {
+        {song.tokens.map((token) => {
           if (token.chord !== null) {
             return <Chord key={token.id} chord={token.chord} />;
           } else {
@@ -37,6 +37,15 @@ const App: React.FC = () => {
           }
         })}
       </p>
+      <button id="transpose-up" onClick={() => setSong(transpose(song, song.transposeLevel + 1))}>
+        Transpose up
+      </button>
+      <button id="transpose-down" onClick={() => setSong(transpose(song, song.transposeLevel - 1))}>
+        Transpose down
+      </button>
+      <button id="reset-transpose" onClick={() => setSong(transpose(song, 0))}>
+        Reset
+      </button>
     </main>
   );
 };
