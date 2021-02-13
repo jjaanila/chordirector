@@ -57,10 +57,7 @@ function parseChord(chordCandidate: string): TokenChord | null {
   let otherBassNote: Note | null = null;
   if (bassNoteMatches !== null && bassNoteMatches[0] !== null) {
     otherBassNote = bassNoteMatches[0] as Note; // Leave out the leading slash
-    console.log(chordCandidate);
-    console.log(rest, otherBassNote);
     rest = rest.slice(0, rest.length - otherBassNote.length - 1); // - 1 for slash!
-    console.log(rest);
   }
   return {
     rootNote: rootNoteMatches[0] as Note,

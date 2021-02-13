@@ -6,6 +6,11 @@ const nonChordCss = {
   whiteSpace: 'pre',
 };
 
+const mainCss = {
+  display: 'flex',
+  flexFlow: 'row nowrap',
+};
+
 const Chord = ({ chord }: { chord: TokenChord }) => {
   return (
     <strong>
@@ -22,7 +27,6 @@ const NonChord = ({ value }: { value: Token['value'] }) => {
 
 const App: React.FC = () => {
   const [song, setSong] = useState<Song>({ tokens: [], transposeLevel: 0 });
-  console.log(song.tokens.filter((token) => token.chord));
   useEffect(() => {
     chrome.runtime.onMessage.addListener((request: NewSongRequest, _sender, sendResponse) => {
       if (request.type == 'newSong') {
@@ -33,25 +37,29 @@ const App: React.FC = () => {
     });
   });
   return (
-    <main>
-      <p>
-        {song.tokens.map((token) => {
-          if (token.chord !== null) {
-            return <Chord key={token.id} chord={token.chord} />;
-          } else {
-            return <NonChord key={token.id} value={token.value} />;
-          }
-        })}
-      </p>
-      <button id="transpose-up" onClick={() => setSong(transpose(song, song.transposeLevel + 1))}>
-        Transpose up
-      </button>
-      <button id="transpose-down" onClick={() => setSong(transpose(song, song.transposeLevel - 1))}>
-        Transpose down
-      </button>
-      <button id="reset-transpose" onClick={() => setSong(transpose(song, 0))}>
-        Reset transpose
-      </button>
+    <main style={mainCss}>
+      <section>
+        <p>
+          {song.tokens.map((token) => {
+            if (token.chord !== null) {
+              return <Chord key={token.id} chord={token.chord} />;
+            } else {
+              return <NonChord key={token.id} value={token.value} />;
+            }
+          })}
+        </p>
+      </section>
+      <section>
+        <button id="transpose-up" onClick={() => setSong(transpose(song, song.transposeLevel + 1))}>
+          Transpose up
+        </button>
+        <button id="transpose-down" onClick={() => setSong(transpose(song, song.transposeLevel - 1))}>
+          Transpose down
+        </button>
+        <button id="reset-transpose" onClick={() => setSong(transpose(song, 0))}>
+          Reset transpose
+        </button>
+      </section>
     </main>
   );
 };
