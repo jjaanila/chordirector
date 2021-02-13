@@ -60,11 +60,14 @@ function parseChord(chordCandidate: string): TokenChord | null {
   };
 }
 
-export function tokenize(song: string): Token[] {
+export type Song = Token[];
+
+export function tokenize(song: string): Song {
   console.log('tokenizing' + song);
-  return song.split(/\s+/).map((tokenStr, index) => ({
+  return song.split(/\b/).map((tokenStr, index) => ({
     id: index,
     value: tokenStr,
     chord: parseChord(tokenStr),
+    isWhitespace: /^\s+$/.test(tokenStr),
   }));
 }

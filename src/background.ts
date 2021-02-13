@@ -24,18 +24,25 @@ function sendNewSongRequest(tabId: number, song: string) {
   );
 }
 
-chrome.contextMenus.onClicked.addListener(function (info) {
+chrome.contextMenus.onClicked.addListener((info) => {
   if (info.menuItemId == 'chordirector-open') {
-    chrome.tabs.create({ url: chrome.extension.getURL('index.html') }, (tab) => {
-      setTimeout(() => {
-        if (tab.id === undefined) {
-          throw new Error('Did not get tab.id');
-        }
-        if (info.selectionText === undefined) {
-          throw new Error('Did not get info.selectionText');
-        }
-        sendNewSongRequest(tab.id, info.selectionText);
-      }, 3000);
-    });
+    chrome.tabs.executeScript(
+      {
+        code: 'window.getSelection().toString();',
+      },
+      (selection: string[]) => {
+        chrome.tabs.create({ url: chrome.extension.getURL('index.html') }, (tab) => {
+          if (selection === undefined || selection[0] === undefined) {
+            throw new Error('Did not get info.selectionText');
+          }
+          setTimeout(() => {
+            if (tab.id === undefined) {
+              throw new Error('Did not get tab.id');
+            }
+            sendNewSongRequest(tab.id, selection[0]);
+          }, 1000);
+        });
+      },
+    );
   }
 });

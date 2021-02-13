@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { render } from 'react-dom';
 import { Chord } from './components/Chord';
-import { Token, tokenize } from './parser';
+import { Song, Token, tokenize } from './parser';
+
+const nonChordCss = {
+  whiteSpace: 'pre',
+};
+
+const NonChord = ({ value }: { value: Token['value'] }) => {
+  if (/^\s+$/.test(value)) {
+    return <span style={nonChordCss}>{value}</span>;
+  }
+  return <span style={nonChordCss}>{value}</span>;
+};
 
 const App: React.FC = () => {
-  const [song, setSong] = useState<Token[]>([]);
+  const [song, setSong] = useState<Song>([]);
   useEffect(() => {
     chrome.runtime.onMessage.addListener((request: NewSongRequest, _sender, sendResponse) => {
       if (request.type == 'newSong') {
@@ -20,9 +31,9 @@ const App: React.FC = () => {
       <p>
         {song.map((token) => {
           if (token.chord !== null) {
-            return <Chord chord={token.chord}></Chord>;
+            return <Chord key={token.id} chord={token.chord} />;
           } else {
-            return token.value;
+            return <NonChord key={token.id} value={token.value} />;
           }
         })}
       </p>
