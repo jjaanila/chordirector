@@ -56,7 +56,7 @@ function parseChord(chordCandidate: string): TokenChord | null {
   const rest = chordCandidate.slice(rootNoteMatches[0].length);
   return {
     rootNote: rootNoteMatches[0] as RootNote,
-    rest: rest === '' ? rest : null,
+    rest: rest === '' ? null : rest,
   };
 }
 
