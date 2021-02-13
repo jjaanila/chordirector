@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
-export interface AutoScrollProps {}
+const controlCss = {
+  marginRight: '4px',
+};
 
 let scrollingInterval: NodeJS.Timeout;
 let countdownTimeout: NodeJS.Timeout;
 
-export const AutoScroll: React.FC<AutoScrollProps> = () => {
+export const AutoScroll = () => {
   const [scrollSpeed, setScrollSpeed] = useState<number>(200);
   const [countdown, setCountdown] = useState(0);
   const [countdownCounter, setCountdownCounter] = useState<number>(0);
@@ -48,6 +50,7 @@ export const AutoScroll: React.FC<AutoScrollProps> = () => {
   return (
     <>
       <button
+        style={controlCss}
         id="auto-scroll"
         onClick={() => {
           if (isScrolling || isCountingDown) {
@@ -60,6 +63,7 @@ export const AutoScroll: React.FC<AutoScrollProps> = () => {
         {isCountingDown ? `${countdownCounter} (Stop)` : !isScrolling ? 'Start scrolling' : 'Stop'}
       </button>
       <select
+        style={controlCss}
         disabled={isScrolling}
         id="select-speed"
         value={scrollSpeed}
@@ -70,6 +74,7 @@ export const AutoScroll: React.FC<AutoScrollProps> = () => {
         <option value={300}>Fast</option>
       </select>
       <input
+        style={controlCss}
         disabled={isScrolling}
         id="countdown-input"
         type="number"
