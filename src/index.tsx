@@ -8,7 +8,12 @@ const nonChordCss = {
 
 const mainCss = {
   display: 'flex',
-  flexFlow: 'row nowrap',
+  flexFlow: 'column nowrap',
+  justifyContent: 'center',
+};
+
+const songCss = {
+  margin: 0,
 };
 
 const Chord = ({ chord }: { chord: TokenChord }) => {
@@ -39,17 +44,6 @@ const App: React.FC = () => {
   return (
     <main style={mainCss}>
       <section>
-        <p>
-          {song.tokens.map((token) => {
-            if (token.chord !== null) {
-              return <Chord key={token.id} chord={token.chord} />;
-            } else {
-              return <NonChord key={token.id} value={token.value} />;
-            }
-          })}
-        </p>
-      </section>
-      <section>
         <button id="transpose-up" onClick={() => setSong(transpose(song, song.transposeLevel + 1))}>
           Transpose up
         </button>
@@ -59,6 +53,17 @@ const App: React.FC = () => {
         <button id="reset-transpose" onClick={() => setSong(transpose(song, 0))}>
           Reset transpose
         </button>
+      </section>
+      <section>
+        <p style={songCss}>
+          {song.tokens.map((token) => {
+            if (token.chord !== null) {
+              return <Chord key={token.id} chord={token.chord} />;
+            } else {
+              return <NonChord key={token.id} value={token.value} />;
+            }
+          })}
+        </p>
       </section>
     </main>
   );
