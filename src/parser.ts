@@ -86,30 +86,38 @@ export function tokenize(songStr: string): Song {
   };
 }
 
-const transposeRootNotes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
+const transposeNotes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as const;
+
+function transposeNote(note: Note, transposeDelta: number): Note {
+  const noteIndex = transposeNotes.findIndex((rootNote) => rootNote === note);
+  if (noteIndex === undefined) {
+    throw new Error(`${note} note was not found from transposing table`);
+  }
+  let newIndex = noteIndex + transposeDelta;
+  newIndex = newIndex > transposeNotes.length - 1 ? newIndex % transposeNotes.length : newIndex;
+  newIndex = newIndex < 0 ? transposeNotes.length + (newIndex % transposeNotes.length) : newIndex;
+  return transposeNotes[newIndex];
+}
 
 export function transpose(song: Song, newTransposeLevel: number): Song {
   if (newTransposeLevel === song.transposeLevel) {
     return song;
   }
-  const rootNoteOffset = newTransposeLevel - song.transposeLevel;
+  const transposeDelta = newTransposeLevel - song.transposeLevel;
   return {
     transposeLevel: newTransposeLevel,
     tokens: song.tokens.map((token) => {
       if (token.chord === null) {
         return token;
       }
-      const rootNoteIndex = transposeRootNotes.findIndex(
-        (rootNote) => rootNote === (token.chord !== null && token.chord.rootNote),
-      );
-      if (rootNoteIndex === undefined) {
-        console.error(`${token.chord} rootnote was not found from transposing table`);
-        return token;
+      try {
+        token.chord.rootNote = transposeNote(token.chord.rootNote, transposeDelta);
+        token.chord.otherBassNote =
+          token.chord.otherBassNote === null ? null : transposeNote(token.chord.otherBassNote, transposeDelta);
+      } catch (err) {
+        console.error(`Error transposing ${token.chord.rootNote} with delta ${transposeDelta}: ${err}`);
+        throw err;
       }
-      let newIndex = rootNoteIndex + rootNoteOffset;
-      newIndex = newIndex > transposeRootNotes.length - 1 ? newIndex % transposeRootNotes.length : newIndex;
-      newIndex = newIndex < 0 ? transposeRootNotes.length + (newIndex % transposeRootNotes.length) : newIndex;
-      token.chord.rootNote = transposeRootNotes[newIndex];
       return token;
     }),
   };
