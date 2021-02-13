@@ -23,8 +23,6 @@ const notes = [
   'Bb',
 ] as const;
 
-const noteRegex = `[${noteLetters.join()}][b#]*`;
-
 type Note = typeof notes[number];
 
 export interface TokenChord {
@@ -39,24 +37,30 @@ export interface Token {
   chord: TokenChord | null;
 }
 
+const noteRegex = `[${noteLetters.join()}][b#]*`;
+const restRegex = '[m#b123456789adiMmju+()]*';
+
 function isChord(chordCandidate: string) {
-  return new RegExp(`^${noteRegex}[m#b123456789adiMmju+()]*(\/${noteRegex})?$`, 'gm').test(chordCandidate);
+  return new RegExp(`^${noteRegex}${restRegex}(\/${noteRegex})?$`, 'gm').test(chordCandidate);
 }
 
 function parseChord(chordCandidate: string): TokenChord | null {
   if (!isChord(chordCandidate)) {
     return null;
   }
-  const rootNoteMatches = chordCandidate.match(noteRegex);
-  if (rootNoteMatches === null) {
+  const rootNoteMatches = chordCandidate.match(`^${noteRegex}`);
+  if (rootNoteMatches === null || rootNoteMatches[0] === null) {
     throw new Error(`Did not find rootnote for ${chordCandidate}`);
   }
   let rest = chordCandidate.slice(rootNoteMatches[0].length);
-  const bassNoteMatches = rest.match(new RegExp(`/${noteRegex}`));
+  const bassNoteMatches = rest.match(new RegExp(`(?<=\/)${noteRegex}$`));
   let otherBassNote: Note | null = null;
   if (bassNoteMatches !== null && bassNoteMatches[0] !== null) {
-    otherBassNote = bassNoteMatches[0].slice(0, 1) as Note; // Leave out the leading slash
-    rest = rest.slice(bassNoteMatches[0].length);
+    otherBassNote = bassNoteMatches[0] as Note; // Leave out the leading slash
+    console.log(chordCandidate);
+    console.log(rest, otherBassNote);
+    rest = rest.slice(0, rest.length - otherBassNote.length - 1); // - 1 for slash!
+    console.log(rest);
   }
   return {
     rootNote: rootNoteMatches[0] as Note,
@@ -72,7 +76,7 @@ export type Song = {
 
 export function tokenize(songStr: string): Song {
   return {
-    tokens: songStr.split(/(?<=\w)(?=\W)|(?<=\W)(?=\w)/).map((tokenStr, index) => ({
+    tokens: songStr.split(/(?<=\w)(?=\s)|(?<=\s)(?=\w)/).map((tokenStr, index) => ({
       id: index,
       value: tokenStr,
       chord: parseChord(tokenStr),
